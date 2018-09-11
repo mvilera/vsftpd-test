@@ -2,9 +2,9 @@ version: '3'
 services: 
   servidor:
     build: .
-    network_mode: 'host'                        # modo host necesario para que el modo PASV del SFTP funcione sin tener que mapear todos los puertos.
+    network_mode: 'host'                        # modo host para atar los puertos directamente al host.
     security_opt:
-      - seccomp:unconfined
+      - seccomp:unconfined                      # opción necesaria para poder usar comandos de auditoría como strace
     volumes:
       - ./supervisord:/etc/supervisor/conf.d    # seteamos la configuración del servicio gestor de los procesos SSHd y VSFTPd 
       - ./logs:/var/log/supervisor              # directorio con logs del demonio supervisor
