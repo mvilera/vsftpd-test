@@ -120,7 +120,7 @@ listen=YES
 # Make sure, that one of the listen options is commented !!
 listen_ipv6=NO
 
-pam_service_name=foo
+pam_service_name=vsftpd
 #userlist_enable=YES
 #tcp_wrappers=YES
 

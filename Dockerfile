@@ -31,8 +31,8 @@ RUN echo "$FTP_USER:$FTP_USER_PASSWORD" | chpasswd
 RUN echo "$FTP_ADMIN:$FTP_ADMIN_PASSWORD" | chpasswd
 
 # RESTRICCIONES DE ACCESO Y CREACION DE DIRECTORIO DE DATOS PARA LOS USUARIOS
-RUN chown root /home/$FTP_USER && chmod 775 /home/$FTP_USER && \
-    chown root /home/$FTP_ADMIN && chmod 775 /home/$FTP_ADMIN
+RUN chown root /home/$FTP_USER && chmod 770 /home/$FTP_USER && \
+    chown root /home/$FTP_ADMIN && chmod 770 /home/$FTP_ADMIN
 
 WORKDIR /etc/ssl/private
 
