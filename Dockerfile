@@ -16,24 +16,6 @@ RUN mkdir /etc/vsftpd && \
 
 VOLUME ["/pems"]
 
-# VARIABLES DE ENTORNO PARA DEFINIR USUARIO Y ADMIN
-ENV FTP_ADMIN=admin \
-    FTP_ADMIN_PASSWORD=admin \
-    FTP_USER=user \
-    FTP_USER_PASSWORD=user
-
-# CREAR USUARIOS
-RUN useradd --create-home --shell /bin/bash -U $FTP_ADMIN && \
-    useradd --create-home --shell /bin/bash -U $FTP_USER
-
-# SETEAMOS LAS CLAVES DE LOS USUARIOS
-RUN echo "$FTP_USER:$FTP_USER_PASSWORD" | chpasswd
-RUN echo "$FTP_ADMIN:$FTP_ADMIN_PASSWORD" | chpasswd
-
-# RESTRICCIONES DE ACCESO Y CREACION DE DIRECTORIO DE DATOS PARA LOS USUARIOS
-RUN chown root /home/$FTP_USER && chmod 770 /home/$FTP_USER && \
-    chown root /home/$FTP_ADMIN && chmod 770 /home/$FTP_ADMIN
-
 WORKDIR /etc/ssl/private
 
 # GENERAR CA
@@ -58,18 +40,23 @@ RUN openssl x509 -req -days 365 -in clients/ftp.csr -CA ca/ca.crt -CAkey ca/ca.k
 
 # ARCHIVOS PEM
 RUN cat service/vsftpd.key service/vsftpd.crt > vsftpd.pem 				# vsftpd.pem
-RUN cat clients/ftp.crt > cacerts.pem							# cacerts.pem
-RUN cat clients/ftp.key clients/ftp.crt > clients/pems/ftp.pem				# ftp_admin.pem
+RUN cat clients/ftp.crt > cacerts.pem							                # cacerts.pem
+RUN cat clients/ftp.key clients/ftp.crt > clients/pems/ftp.pem		# ftp_admin.pem
 
-# AGREGAMOS USUARIOS AL CHROOT_LIST
-RUN echo $FTP_ADMIN > /etc/vsftpd/chroot_list && \
-    echo $FTP_USER >> /etc/vsftpd/chroot_list
+RUN touch /etc/vsftpd/chroot_list
 
-COPY vsfptd_conf.sh /etc/vsftpd/vsftpd.conf
-
+COPY vsftpd.conf /etc/vsftpd/vsftpd.conf
 COPY entrypoint.sh /entrypoint.sh
+COPY create-user.sh /bin/create-user
+COPY batch-create-user.sh /bin/batch-create-user
+COPY data/userlist.file /userlist.file
+COPY data/ftp.list /ftp.list
 
-RUN chmod +x /entrypoint.sh
+RUN chmod u+x /entrypoint.sh && \
+    chmod u+x /bin/batch-create-user && \
+    chmod u+x /bin/create-user
+
+RUN echo "/sbin/nologin" >> /etc/shells
 
 # ACTIVAMOS MODO FOREGROUND PARA SUPERVISORD
 RUN sed -i 's/^\(\[supervisord\]\)$/\1\nnodaemon=true/' /etc/supervisor/supervisord.conf

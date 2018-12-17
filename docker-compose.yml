@@ -6,6 +6,10 @@ services:
     security_opt:
       - seccomp:unconfined                      # opción necesaria para poder usar comandos de auditoría como strace
     volumes:
+      - ./data/userlist.file:/userlist.file:Z
+      - ./data/ftp.list:/ftp.list:Z
       - ./supervisord:/etc/supervisor/conf.d    # seteamos la configuración del servicio gestor de los procesos SSHd y VSFTPd 
-      - ./logs:/var/log/supervisor              # directorio con logs del demonio supervisor
-      - ./pems:/pems                            # directorio con la llave .pem del sftp
+      - ./logs:/var/log/supervisord:Z           # directorio con logs del demonio supervisor
+      - ./pems:/pems:Z                          # directorio con la llave .pem del sftp
+      - ./keys:/keys:Z
+      - ./data/home:/home:Z
