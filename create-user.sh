@@ -25,11 +25,13 @@ if ! id -u $USERNAME > /dev/null 2>&1; then
   # VERIFICAMOS SI DEBEMOS CREAR SHELL ACCESS O NO
   shopt -s nocasematch
   if [[ "$SHELL_ALLOWED" == "yes" ]]; then
-    USERADD_PARAMETERS="$USERADD_PARAMETERS --shell /bin/bash"
+    CHOOSEN_SHELL="/bin/bash"
   else
-    USERADD_PARAMETERS="$USERADD_PARAMETERS --shell /sbin/nologin"
+    CHOOSEN_SHELL="/sbin/nologin"
   fi
   shopt -u nocasematch
+
+  USERADD_PARAMETERS="$USERADD_PARAMETERS --shell $CHOOSEN_SHELL"
 
   # CREAMOS USUARIO
   useradd $USERADD_PARAMETERS
@@ -60,11 +62,10 @@ if ! id -u $USERNAME > /dev/null 2>&1; then
 
   # AÑADIMOS EL USUARIO AL ARCHIVO LISTA CON LOS PARAMETROS DE CREACION
   if [ -f $USERLIST ]; then
-    grep -q -F "$USERNAME:$PASSWORD" $USERLIST || echo "$USERNAME:$PASSWORD:$SHELL_ALLOWED:$FTP" >> $USERLIST
+    grep -q -F "$USERNAME:$PASSWORD" $USERLIST || echo "$USERNAME:$PASSWORD:$CHOOSEN_SHELL:$FTP" >> $USERLIST
   else
-    echo "$USERNAME:$PASSWORD:$SHELL_ALLOWED:$FTP" >> $USERLIST
+    echo "$USERNAME:$PASSWORD:$CHOOSEN_SHELL:$FTP" >> $USERLIST
   fi
-
 
   echo "User created succesfully."
 else
